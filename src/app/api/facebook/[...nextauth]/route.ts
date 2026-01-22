@@ -15,16 +15,14 @@ if (facebookClientId && facebookClientSecret) {
             clientSecret: facebookClientSecret,
             authorization: {
                 params: {
-                    scope: "public_profile"
+                    scope: "public_profile,email,pages_show_list",
+                    config_id: "2065324800981044"
                 }
             }
         })
     );
 }
 
-// Note: Configuring NextAuth at a custom path (/api/facebook) requires careful client-side configuration
-// or it might expect standard /api/auth paths.
-// If you intend for this to handle only Facebook, you might need to adjust the signIn call client-side.
 const authOptions = {
     providers,
     secret: process.env.NEXTAUTH_SECRET,
