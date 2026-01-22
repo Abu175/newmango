@@ -75,7 +75,7 @@ export default function PlatformOverlay({ isOpen, onClose }: PlatformOverlayProp
 
     const handleConnect = async () => {
         if (selectedPlatform?.id === 'facebook') {
-            await signIn('facebook');
+            await signIn('facebook', undefined, { basePath: '/api/facebook' } as any);
         } else {
             console.log("Connect to " + selectedPlatform?.name);
         }
