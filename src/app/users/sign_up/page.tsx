@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { LoginForm } from "@/components/auth/LoginForm";
 
-export default function SignUpToEditor() {
+function SignUpContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -63,7 +63,7 @@ export default function SignUpToEditor() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center" style={{background: 'var(--bg-color)'}}>
+    <main className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-color)' }}>
       <div className="w-full max-w-md">
         <div style={neumorphicStyle} className="p-8">
           <div className="text-center mb-8">
@@ -88,10 +88,10 @@ export default function SignUpToEditor() {
                 </svg>
               </button>
             </div>
-            <h1 className="text-3xl font-bold mb-2" style={{color: 'var(--text-color)'}}>
+            <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-color)' }}>
               Sign up for Codilore
             </h1>
-            <p style={{color: 'var(--text-color)', opacity: 0.8}}>
+            <p style={{ color: 'var(--text-color)', opacity: 0.8 }}>
               Create your account to use Codilore features in your editor
             </p>
           </div>
@@ -99,5 +99,13 @@ export default function SignUpToEditor() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function SignUpToEditor() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignUpContent />
+    </Suspense>
   );
 }
