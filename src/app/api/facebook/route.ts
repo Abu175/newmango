@@ -3,7 +3,11 @@ import { getToken } from 'next-auth/jwt';
 
 export async function POST(req: NextRequest) {
     try {
-        const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+        const token = await getToken({
+            req,
+            secret: process.env.NEXTAUTH_SECRET,
+            secureCookie: process.env.NODE_ENV === 'production'
+        });
 
         // Check if user is authenticated and has an access token
         if (!token || !token.accessToken) {
