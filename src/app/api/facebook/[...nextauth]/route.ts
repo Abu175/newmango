@@ -1,12 +1,24 @@
 import NextAuth from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 import type { Session } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 
 const facebookClientId = process.env.FACEBOOK_CLIENT_ID;
 const facebookClientSecret = process.env.FACEBOOK_CLIENT_SECRET;
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
 const providers = [] as any[];
+
+if (googleClientId && googleClientSecret) {
+    providers.push(
+        GoogleProvider({
+            clientId: googleClientId,
+            clientSecret: googleClientSecret,
+        })
+    );
+}
 
 if (facebookClientId && facebookClientSecret) {
     providers.push(
@@ -15,7 +27,7 @@ if (facebookClientId && facebookClientSecret) {
             clientSecret: facebookClientSecret,
             authorization: {
                 params: {
-                    scope: "public_profile,email,pages_show_list",
+                    scope: "public_profile",
                     config_id: "2065324800981044"
                 }
             }
