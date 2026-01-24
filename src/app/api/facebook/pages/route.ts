@@ -3,7 +3,12 @@ import { getToken } from 'next-auth/jwt';
 
 export async function GET(req: NextRequest) {
     try {
-        const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+        // Since we are using a custom basePath (/api/facebook), we must specify it for getToken
+        const token = await getToken({
+            req,
+            secret: process.env.NEXTAUTH_SECRET,
+            secureCookie: process.env.NODE_ENV === 'production'
+        });
 
         if (!token || !token.accessToken) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
