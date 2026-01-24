@@ -28,8 +28,9 @@ if (facebookClientId && facebookClientSecret) {
       authorization: {
         params: {
           // FOR BUSINESS APPS: You MUST include at least one permission besides public_profile
-          // Adding 'email' and 'pages_show_list' to satisfy Business Login requirements
-          scope: "public_profile,email,pages_show_list"
+          // Simplified to public_profile only for initial testing
+          scope: "public_profile",
+          config_id: "2065324800981044" // Your newly created Business Configuration ID
 
           // FULL PERMISSIONS (uncomment after configuring Facebook App in Developer Console)
           // Requires: Facebook Login + Pages API products enabled
