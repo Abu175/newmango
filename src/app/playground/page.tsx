@@ -6,8 +6,9 @@ import {
     Bell, Search, Plus, Image as ImageIcon, Heart, MessageCircle, Share2,
     MoreHorizontal, ThumbsUp, MessageSquare, Repeat, Send, Bookmark,
     Globe, Upload, Link as LinkIcon, X, Music, Share, ArrowUp, ArrowDown,
-    Pin, Camera, ChevronRight, ExternalLink
+    Pin, Camera, ChevronRight, ExternalLink, User
 } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 
 export default function PlaygroundPage() {
     const [content, setContent] = useState({
@@ -24,6 +25,7 @@ export default function PlaygroundPage() {
     const [isPosting, setIsPosting] = useState(false);
     const [postResult, setPostResult] = useState<{ success: boolean; message: string } | null>(null);
     const [selectedFbPage, setSelectedFbPage] = useState<any>(null);
+    const { data: session } = useSession();
 
     // Load selected page from localStorage on mount and when overlay closes
     React.useEffect(() => {
@@ -127,7 +129,31 @@ export default function PlaygroundPage() {
                             <Search className="absolute left-2 top-2.5 text-gray-400" size={16} />
                         </div>
                         <Bell className="text-gray-400 hover:text-gray-600 cursor-pointer" size={20} />
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 border-2 border-white shadow-sm"></div>
+                        <div className="flex items-center space-x-2">
+                            {session?.user ? (
+                                <>
+                                    <div className="text-right hidden sm:block">
+                                        <p className="text-xs font-bold text-gray-800 leading-none">{session.user.name}</p>
+                                        <p className="text-[10px] text-gray-400">{(session as any).provider || 'Connected'}</p>
+                                    </div>
+                                    {session.user.image ? (
+                                        <img
+                                            src={session.user.image}
+                                            className="w-8 h-8 rounded-full border-2 border-white shadow-sm ring-1 ring-gray-100"
+                                            alt={session.user.name || ''}
+                                        />
+                                    ) : (
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 border-2 border-white shadow-sm flex items-center justify-center text-white text-[10px] font-bold">
+                                            {session.user.name?.charAt(0)}
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <div className="w-8 h-8 rounded-full bg-gray-100 border-2 border-white shadow-sm flex items-center justify-center text-gray-400">
+                                    <User size={14} />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </header>
 
@@ -296,16 +322,16 @@ export default function PlaygroundPage() {
                     <div className="flex-1 overflow-x-auto min-h-0 bg-white/50 p-6 rounded-2xl border border-dashed border-gray-300 custom-scrollbar">
                         <div className="flex space-x-8 min-w-max pb-4">
 
-                            <PreviewColumn title="Instagram" Component={InstagramPreview} content={content} />
-                            <PreviewColumn title="Facebook" Component={FacebookPreview} content={content} />
-                            <PreviewColumn title="TikTok" Component={TikTokPreview} content={content} />
-                            <PreviewColumn title="Twitter (X)" Component={TwitterPreview} content={content} />
-                            <PreviewColumn title="Threads" Component={ThreadsPreview} content={content} />
-                            <PreviewColumn title="YouTube" Component={YouTubePreview} content={content} />
-                            <PreviewColumn title="LinkedIn" Component={LinkedInPreview} content={content} />
-                            <PreviewColumn title="Reddit" Component={RedditPreview} content={content} />
-                            <PreviewColumn title="WhatsApp" Component={WhatsAppPreview} content={content} />
-                            <PreviewColumn title="Pinterest" Component={PinterestPreview} content={content} />
+                            <PreviewColumn title="Instagram" Component={InstagramPreview} content={content} user={session?.user} />
+                            <PreviewColumn title="Facebook" Component={FacebookPreview} content={content} user={session?.user} />
+                            <PreviewColumn title="TikTok" Component={TikTokPreview} content={content} user={session?.user} />
+                            <PreviewColumn title="Twitter (X)" Component={TwitterPreview} content={content} user={session?.user} />
+                            <PreviewColumn title="Threads" Component={ThreadsPreview} content={content} user={session?.user} />
+                            <PreviewColumn title="YouTube" Component={YouTubePreview} content={content} user={session?.user} />
+                            <PreviewColumn title="LinkedIn" Component={LinkedInPreview} content={content} user={session?.user} />
+                            <PreviewColumn title="Reddit" Component={RedditPreview} content={content} user={session?.user} />
+                            <PreviewColumn title="WhatsApp" Component={WhatsAppPreview} content={content} user={session?.user} />
+                            <PreviewColumn title="Pinterest" Component={PinterestPreview} content={content} user={session?.user} />
 
                         </div>
                     </div>
@@ -333,16 +359,16 @@ export default function PlaygroundPage() {
     )
 }
 
-const PreviewColumn = ({ title, Component, content }: { title: string, Component: any, content: any }) => (
+const PreviewColumn = ({ title, Component, content, user }: { title: string, Component: any, content: any, user?: any }) => (
     <div className="flex flex-col items-center">
         <h3 className="mb-4 font-bold text-gray-400 uppercase tracking-widest text-[10px]">{title}</h3>
-        <Component content={content} />
+        <Component content={content} user={user} />
     </div>
 )
 
 // --- PREVIEW COMPONENTS ---
 
-const InstagramPreview = ({ content }: { content: any }) => (
+const InstagramPreview = ({ content, user }: { content: any, user?: any }) => (
     <div className="bg-white border border-gray-200 w-[375px] h-[650px] shadow-sm font-sans text-sm flex-shrink-0 flex flex-col overflow-hidden relative rounded-3xl">
         <div className="h-6 bg-white w-full flex justify-between items-center px-6 pt-2">
             <span className="text-[10px] font-bold">9:41</span>
@@ -354,10 +380,12 @@ const InstagramPreview = ({ content }: { content: any }) => (
         <div className="flex items-center p-3 border-b border-gray-50">
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-yellow-400 to-purple-600 p-[2px] flex-shrink-0">
                 <div className="w-full h-full rounded-full bg-white p-[2px]">
-                    <img src={`https://ui-avatars.com/api/?name=${content.authorName}&background=random`} className="rounded-full" alt="avatar" />
+                    <img src={user?.image || `https://ui-avatars.com/api/?name=${user?.name || content.authorName}&background=random`} className="rounded-full w-full h-full" alt="avatar" />
                 </div>
             </div>
-            <span className="ml-3 font-semibold text-gray-900 text-sm">{content.authorHandle}</span>
+            <span className="ml-3 font-semibold text-gray-900 text-sm">
+                {user?.name?.toLowerCase().replace(/\s+/g, '') || content.authorHandle}
+            </span>
             <MoreHorizontal size={20} className="ml-auto text-gray-600" />
         </div>
         <div className="aspect-square w-full bg-gray-100 flex items-center justify-center overflow-hidden">
@@ -386,7 +414,7 @@ const InstagramPreview = ({ content }: { content: any }) => (
     </div>
 )
 
-const FacebookPreview = ({ content }: { content: any }) => (
+const FacebookPreview = ({ content, user }: { content: any, user?: any }) => (
     <div className="bg-[#f0f2f5] w-[375px] h-[650px] shadow-sm font-sans text-sm flex-shrink-0 flex flex-col overflow-hidden relative rounded-3xl border border-gray-200">
         <div className="bg-white p-3 border-b border-gray-200 flex items-center space-x-2 pt-8">
             <div className="w-8 h-8 rounded-full bg-[#1877F2] flex items-center justify-center text-white font-bold leading-none">f</div>
@@ -395,9 +423,9 @@ const FacebookPreview = ({ content }: { content: any }) => (
         </div>
         <div className="bg-white mt-2 p-3 flex-1 overflow-y-auto custom-scrollbar">
             <div className="flex items-center mb-3">
-                <img src={`https://ui-avatars.com/api/?name=${content.authorName}&background=1877f2&color=fff`} className="w-10 h-10 rounded-full" />
+                <img src={user?.image || `https://ui-avatars.com/api/?name=${user?.name || content.authorName}&background=1877f2&color=fff`} className="w-10 h-10 rounded-full" />
                 <div className="ml-2">
-                    <div className="font-bold text-sm text-gray-900">{content.authorName}</div>
+                    <div className="font-bold text-sm text-gray-900">{user?.name || content.authorName}</div>
                     <div className="text-[10px] text-gray-500 flex items-center">{content.date} · <Globe size={10} className="ml-1" /></div>
                 </div>
                 <MoreHorizontal size={18} className="ml-auto text-gray-400" />
@@ -420,7 +448,7 @@ const FacebookPreview = ({ content }: { content: any }) => (
     </div>
 )
 
-const TikTokPreview = ({ content }: { content: any }) => (
+const TikTokPreview = ({ content, user }: { content: any, user?: any }) => (
     <div className="bg-black w-[375px] h-[650px] shadow-sm font-sans text-sm flex-shrink-0 flex flex-col overflow-hidden relative rounded-3xl border border-gray-800">
         <div className="absolute top-8 left-0 right-0 flex justify-center space-x-4 text-white font-bold text-sm z-20">
             <span className="opacity-60">Following</span>
@@ -429,16 +457,16 @@ const TikTokPreview = ({ content }: { content: any }) => (
         <div className="flex-1 relative bg-gray-900 overflow-hidden">
             <img src={content.image || ''} className="w-full h-full object-cover opacity-60" />
             <div className="absolute bottom-16 left-4 right-16 text-white z-10">
-                <div className="font-bold text-lg mb-1">@{content.authorHandle}</div>
+                <div className="font-bold text-lg mb-1">@{user?.name?.toLowerCase().replace(/\s+/g, '') || content.authorHandle}</div>
                 <div className="text-sm line-clamp-3 mb-2">{content.text}</div>
                 <div className="flex items-center space-x-2 text-xs">
                     <Music size={12} className="animate-spin" />
-                    <span className="truncate">Original Sound - {content.authorName}</span>
+                    <span className="truncate">Original Sound - {user?.name || content.authorName}</span>
                 </div>
             </div>
             <div className="absolute bottom-16 right-3 flex flex-col items-center space-y-4 z-10">
                 <div className="relative">
-                    <img src={`https://ui-avatars.com/api/?name=${content.authorName}&background=000&color=fff`} className="w-12 h-12 rounded-full border-2 border-white" />
+                    <img src={user?.image || `https://ui-avatars.com/api/?name=${user?.name || content.authorName}&background=000&color=fff`} className="w-12 h-12 rounded-full border-2 border-white" />
                     <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center text-white font-bold">+</div>
                 </div>
                 <div className="flex flex-col items-center text-white"><Heart size={32} fill="white" /><span className="text-xs">1.2M</span></div>
@@ -457,7 +485,7 @@ const TikTokPreview = ({ content }: { content: any }) => (
     </div>
 )
 
-const TwitterPreview = ({ content }: { content: any }) => (
+const TwitterPreview = ({ content, user }: { content: any, user?: any }) => (
     <div className="bg-black text-white w-[375px] h-[650px] shadow-sm font-sans flex-shrink-0 flex flex-col overflow-hidden relative rounded-3xl border border-gray-800">
         <div className="h-6 w-full flex justify-between items-center px-6 pt-2">
             <span className="text-[10px] font-bold text-white">9:41</span>
@@ -467,7 +495,7 @@ const TwitterPreview = ({ content }: { content: any }) => (
         </div>
         <div className="flex justify-between items-center p-4 border-b border-gray-800">
             <div className="w-8 h-8 rounded-full bg-gray-700 overflow-hidden">
-                <img src={`https://ui-avatars.com/api/?name=${content.authorName}&background=333&color=fff`} className="w-full h-full" />
+                <img src={user?.image || `https://ui-avatars.com/api/?name=${user?.name || content.authorName}&background=333&color=fff`} className="w-full h-full" />
             </div>
             <div className="text-blue-400 font-bold">X</div>
             <div className="w-8"></div>
@@ -475,12 +503,12 @@ const TwitterPreview = ({ content }: { content: any }) => (
         <div className="p-4 flex-1 custom-scrollbar overflow-y-auto">
             <div className="flex">
                 <div className="flex-shrink-0 mr-3">
-                    <img src={`https://ui-avatars.com/api/?name=${content.authorName}&background=000&color=fff`} className="w-10 h-10 rounded-full border border-gray-700" alt="avatar" />
+                    <img src={user?.image || `https://ui-avatars.com/api/?name=${user?.name || content.authorName}&background=000&color=fff`} className="w-10 h-10 rounded-full border border-gray-700" alt="avatar" />
                 </div>
                 <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-1">
-                        <span className="font-bold text-sm text-white">{content.authorName}</span>
-                        <span className="text-gray-500 text-xs">@{content.authorHandle} · 2h</span>
+                        <span className="font-bold text-sm text-white">{user?.name || content.authorName}</span>
+                        <span className="text-gray-500 text-xs">@{user?.name?.toLowerCase().replace(/\s+/g, '') || content.authorHandle} · 2h</span>
                         <MoreHorizontal size={16} className="ml-auto text-gray-500" />
                     </div>
                     <div className="mt-1 text-white text-sm leading-snug whitespace-pre-wrap">{content.text}</div>
@@ -506,7 +534,7 @@ const TwitterPreview = ({ content }: { content: any }) => (
     </div>
 )
 
-const ThreadsPreview = ({ content }: { content: any }) => (
+const ThreadsPreview = ({ content, user }: { content: any, user?: any }) => (
     <div className="bg-white w-[375px] h-[650px] shadow-sm font-sans text-sm flex-shrink-0 flex flex-col overflow-hidden relative rounded-3xl border border-gray-200">
         <div className="flex justify-center p-4 pt-10">
             <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center text-white text-[10px] font-bold">T</div>
@@ -514,12 +542,12 @@ const ThreadsPreview = ({ content }: { content: any }) => (
         <div className="p-4 flex-1 overflow-y-auto custom-scrollbar">
             <div className="flex space-x-3">
                 <div className="flex flex-col items-center">
-                    <img src={`https://ui-avatars.com/api/?name=${content.authorName}&background=000&color=fff`} className="w-10 h-10 rounded-full" />
+                    <img src={user?.image || `https://ui-avatars.com/api/?name=${user?.name || content.authorName}&background=000&color=fff`} className="w-10 h-10 rounded-full" />
                     <div className="flex-1 w-[2px] bg-gray-200 my-2 rounded-full"></div>
                 </div>
                 <div className="flex-1 pb-4">
                     <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold text-sm">{content.authorHandle}</span>
+                        <span className="font-bold text-sm">{user?.name?.toLowerCase().replace(/\s+/g, '') || content.authorHandle}</span>
                         <div className="flex items-center space-x-3 text-gray-400">
                             <span className="text-xs">2h</span>
                             <MoreHorizontal size={16} />
@@ -539,7 +567,7 @@ const ThreadsPreview = ({ content }: { content: any }) => (
     </div>
 )
 
-const YouTubePreview = ({ content }: { content: any }) => (
+const YouTubePreview = ({ content, user }: { content: any, user?: any }) => (
     <div className="bg-white w-[375px] h-[650px] shadow-sm font-sans flex-shrink-0 flex flex-col overflow-hidden relative rounded-3xl border border-gray-200">
         <div className="h-6 w-full flex justify-between items-center px-6 pt-2 bg-white z-10">
             <span className="text-[10px] font-bold">9:41</span>
@@ -564,9 +592,9 @@ const YouTubePreview = ({ content }: { content: any }) => (
                 <div className="flex flex-col items-center"><Share2 size={18} /><span className="text-[10px] mt-1">Share</span></div>
             </div>
             <div className="flex items-center space-x-3 py-3 border-t border-b border-gray-100">
-                <img src={`https://ui-avatars.com/api/?name=${content.authorName}&background=ff0000&color=fff`} className="w-8 h-8 rounded-full" alt="avatar" />
+                <img src={user?.image || `https://ui-avatars.com/api/?name=${user?.name || content.authorName}&background=ff0000&color=fff`} className="w-8 h-8 rounded-full" alt="avatar" />
                 <div className="flex-1">
-                    <div className="font-semibold text-sm">{content.authorName}</div>
+                    <div className="font-semibold text-sm">{user?.name || content.authorName}</div>
                     <div className="text-[10px] text-gray-500">100K subscribers</div>
                 </div>
                 <span className="text-red-600 font-bold text-xs uppercase">Subscribe</span>
@@ -575,7 +603,7 @@ const YouTubePreview = ({ content }: { content: any }) => (
     </div>
 )
 
-const LinkedInPreview = ({ content }: { content: any }) => (
+const LinkedInPreview = ({ content, user }: { content: any, user?: any }) => (
     <div className="bg-[#f3f2ef] w-[375px] h-[650px] shadow-sm font-sans text-sm flex-shrink-0 flex flex-col overflow-hidden relative rounded-3xl border border-gray-200">
         <div className="h-6 w-full flex justify-between items-center px-6 pt-2 bg-white">
             <span className="text-[10px] font-bold">9:41</span>
@@ -590,9 +618,9 @@ const LinkedInPreview = ({ content }: { content: any }) => (
         </div>
         <div className="bg-white mt-2 p-0 flex-1 overflow-y-auto custom-scrollbar">
             <div className="flex items-start p-3">
-                <img src={`https://ui-avatars.com/api/?name=${content.authorName}&background=0a66c2&color=fff`} className="w-12 h-12 rounded-full" alt="avatar" />
+                <img src={user?.image || `https://ui-avatars.com/api/?name=${user?.name || content.authorName}&background=0a66c2&color=fff`} className="w-12 h-12 rounded-full" alt="avatar" />
                 <div className="ml-3 flex-1">
-                    <div className="font-semibold text-gray-900 text-sm">{content.authorName}</div>
+                    <div className="font-semibold text-gray-900 text-sm">{user?.name || content.authorName}</div>
                     <div className="text-[10px] text-gray-500">Product Designer @ Tech Corp</div>
                     <div className="text-[10px] text-gray-500 flex items-center mt-0.5">2h • <Globe size={10} className="ml-1" /></div>
                 </div>
@@ -610,7 +638,7 @@ const LinkedInPreview = ({ content }: { content: any }) => (
     </div>
 )
 
-const RedditPreview = ({ content }: { content: any }) => (
+const RedditPreview = ({ content, user }: { content: any, user?: any }) => (
     <div className="bg-[#dae0e6] w-[375px] h-[650px] shadow-sm font-sans text-sm flex-shrink-0 flex flex-col overflow-hidden relative rounded-3xl border border-gray-200">
         <div className="bg-white p-3 pt-10 flex items-center justify-between border-b border-gray-200">
             <div className="w-8 h-8 rounded-full bg-gray-200"></div>
@@ -622,7 +650,7 @@ const RedditPreview = ({ content }: { content: any }) => (
                 <div className="w-6 h-6 rounded-full bg-orange-600 flex items-center justify-center text-white text-[10px] font-bold">r/</div>
                 <div className="flex-1">
                     <span className="font-bold text-xs">r/community</span>
-                    <span className="text-[10px] text-gray-500 ml-1">· 2h · u/{content.authorHandle}</span>
+                    <span className="text-[10px] text-gray-500 ml-1">· 2h · u/{user?.name?.toLowerCase().replace(/\s+/g, '') || content.authorHandle}</span>
                 </div>
                 <button className="bg-blue-600 text-white text-[10px] px-3 py-1 rounded-full font-bold">Join</button>
             </div>
@@ -639,14 +667,14 @@ const RedditPreview = ({ content }: { content: any }) => (
     </div>
 )
 
-const WhatsAppPreview = ({ content }: { content: any }) => (
+const WhatsAppPreview = ({ content, user }: { content: any, user?: any }) => (
     <div className="bg-[#e5ddd5] w-[375px] h-[650px] shadow-sm font-sans text-sm flex-shrink-0 flex flex-col overflow-hidden relative rounded-3xl border border-gray-200">
         <div className="bg-[#075e54] text-white p-4 pt-10 flex items-center space-x-3">
             <div className="w-10 h-10 rounded-full bg-white/20 overflow-hidden flex items-center justify-center">
-                <img src={`https://ui-avatars.com/api/?name=${content.authorName}&background=1ebea5&color=fff`} className="w-full h-full" />
+                <img src={user?.image || `https://ui-avatars.com/api/?name=${user?.name || content.authorName}&background=1ebea5&color=fff`} className="w-full h-full" />
             </div>
             <div className="flex-1">
-                <div className="font-bold text-base">{content.authorName}</div>
+                <div className="font-bold text-base">{user?.name || content.authorName}</div>
                 <div className="text-[10px] opacity-80 uppercase">Online</div>
             </div>
             <MoreHorizontal size={20} />
@@ -667,7 +695,7 @@ const WhatsAppPreview = ({ content }: { content: any }) => (
     </div>
 )
 
-const PinterestPreview = ({ content }: { content: any }) => (
+const PinterestPreview = ({ content, user }: { content: any, user?: any }) => (
     <div className="bg-white w-[375px] h-[650px] shadow-sm font-sans text-sm flex-shrink-0 flex flex-col overflow-hidden relative rounded-3xl border border-gray-200">
         <div className="flex items-center justify-between p-4 pt-10">
             <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center"><ChevronRight size={20} className="rotate-180" /></div>
@@ -680,9 +708,9 @@ const PinterestPreview = ({ content }: { content: any }) => (
             {content.image && <img src={content.image} className="w-full rounded-2xl shadow-md mb-4" />}
             <h2 className="text-lg font-bold text-gray-900 mb-4">{content.text}</h2>
             <div className="flex items-center space-x-2">
-                <img src={`https://ui-avatars.com/api/?name=${content.authorName}&background=bd081c&color=fff`} className="w-10 h-10 rounded-full" />
+                <img src={user?.image || `https://ui-avatars.com/api/?name=${user?.name || content.authorName}&background=bd081c&color=fff`} className="w-10 h-10 rounded-full" />
                 <div className="flex-1">
-                    <span className="font-bold text-sm block">{content.authorName}</span>
+                    <span className="font-bold text-sm block">{user?.name || content.authorName}</span>
                     <span className="text-xs text-gray-500">12K followers</span>
                 </div>
                 <button className="bg-gray-200 px-4 py-2 rounded-full font-bold text-xs">Follow</button>
