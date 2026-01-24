@@ -8,6 +8,8 @@ const facebookClientId = process.env.FACEBOOK_CLIENT_ID;
 const facebookClientSecret = process.env.FACEBOOK_CLIENT_SECRET;
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+const facebookConfigId = process.env.FACEBOOK_CONFIG_ID || "2065324800981044";
+const facebookBusinessId = process.env.FACEBOOK_BUSINESS_ID || "1128099502607067";
 
 const providers = [] as any[];
 
@@ -28,7 +30,8 @@ if (facebookClientId && facebookClientSecret) {
             authorization: {
                 params: {
                     scope: "public_profile",
-                    config_id: "2065324800981044"
+                    config_id: facebookConfigId,
+                    business_id: facebookBusinessId
                 }
             }
         })
@@ -52,6 +55,14 @@ const authOptions = {
             session.accessToken = token.accessToken;
             // @ts-ignore
             session.provider = token.provider;
+
+            // Log for the user to see success in terminal
+            console.log("✅ Success: Facebook User Data:", {
+                name: session.user?.name,
+                email: session.user?.email,
+                provider: (session as any).provider
+            });
+
             return session;
         },
     },
