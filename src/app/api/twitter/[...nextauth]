@@ -1,0 +1,57 @@
+import NextAuth from "next-auth";
+import TwitterProvider from "next-auth/providers/twitter";
+import type { Session } from "next-auth";
+import type { JWT } from "next-auth/jwt";
+
+const twitterClientId = process.env.TWITTER_CLIENT_ID;
+const twitterClientSecret = process.env.TWITTER_CLIENT_SECRET;
+
+const providers = [] as any[];
+
+if (twitterClientId && twitterClientSecret) {
+    providers.push(
+        TwitterProvider({
+            clientId: twitterClientId,
+            clientSecret: twitterClientSecret,
+            version: "2.0", // Use OAuth 2.0
+            authorization: {
+                params: {
+                    scope: "tweet.read tweet.write users.read offline.access",
+                },
+            },
+        })
+    );
+}
+
+const authOptions = {
+    providers,
+    secret: process.env.NEXTAUTH_SECRET,
+    callbacks: {
+        async jwt({ token, account }: { token: JWT; account?: any }) {
+            if (account) {
+                token.accessToken = account.access_token;
+                token.refreshToken = account.refresh_token;
+                token.provider = account.provider;
+                token.id = account.providerAccountId;
+            }
+            return token;
+        },
+        async session({ session, token }: { session: Session; token: JWT }): Promise<Session> {
+            // @ts-ignore
+            session.accessToken = token.accessToken;
+            // @ts-ignore
+            session.provider = token.provider;
+
+            // Log for verification
+            console.log("✅ Twitter User Connected:", {
+                name: session.user?.name,
+                provider: (session as any).provider
+            });
+
+            return session;
+        },
+    },
+};
+
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };
