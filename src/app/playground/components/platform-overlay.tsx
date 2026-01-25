@@ -340,4 +340,4 @@ export default function PlatformOverlay({ isOpen, onClose }: PlatformOverlayProp
                     background: rgba(0, 0, 0, 0.1);
                 }
             `}</style>
-        </div >
+        </div>
