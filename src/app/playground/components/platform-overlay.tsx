@@ -74,12 +74,14 @@ export default function PlatformOverlay({ isOpen, onClose }: PlatformOverlayProp
     const isConnected = (session as any)?.provider === selectedPlatform?.id;
 
     const handleConnect = async () => {
+        console.log("🚀 Connectivity selected for:", selectedPlatform?.id);
+
         if (selectedPlatform?.id === 'facebook') {
             await signIn('facebook');
         } else if (selectedPlatform?.id === 'twitter') {
             await signIn('twitter');
         } else {
-            console.log("Connect to " + selectedPlatform?.name);
+            console.warn("⚠️ No handler configured for platform:", selectedPlatform?.id);
         }
     };
 
@@ -339,5 +341,3 @@ export default function PlatformOverlay({ isOpen, onClose }: PlatformOverlayProp
                 }
             `}</style>
         </div >
-    )
-}
